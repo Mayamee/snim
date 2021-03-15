@@ -1,1 +1,1 @@
-Basic image manipulator for social networks
+# Basic image manipulator for social networks

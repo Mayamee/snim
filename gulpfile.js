@@ -5,9 +5,30 @@ const jimp = require("gulp-jimp-wrapper");
 // for more features see - https://www.npmjs.com/package/jimp
 const rename = require("gulp-rename");
 const concat = require("gulp-concat");
+const fs = require("fs");
 
+const choose = {
+  rand: function (low, high) {
+    return low + Math.floor((high - low + 1) * Math.random());
+  },
+  lenOfDirElements: function (direct) {
+    const dir = `article/${direct}`;
+    fs.readdir(dir, (err, files) => {
+      return files.length;
+    });
+  },
+  returnState: function (nameSection) {
+    let stateNumber = this.rand(0, this.lenOfDirElements(nameSection));
+    return nameSection + `-${stateNumber}.txt`;
+  },
+};
+console.log(choose.returnState("header"));
 function articles() {
-  return src(["article/header.txt", "article/main.txt", "article/footer.txt"])
+  return src([
+    `article/headers/header.txt`,
+    "article/main.txt",
+    `article/footers/footer.txt`,
+  ])
     .pipe(concat("article.out.txt"))
     .pipe(dest("article/"));
 }
@@ -29,6 +50,6 @@ exports.articles = articles;
 exports.images = series(cleandest, images, articles);
 exports.cleandest = cleandest;
 exports.default = series(cleandest, images, articles);
-exports.images = parallel(cleandest, images);
+exports.images = series(cleandest, images);
 exports.cleandest = cleandest;
-exports.default = parallel(cleandest, images);
+exports.default = series(cleandest, images);

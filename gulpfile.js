@@ -1,4 +1,7 @@
 const pref = "toys4";
+const headerFiles = 4;
+const footerFiles = 1;
+
 const { src, dest, parallel, series, watch } = require("gulp");
 const del = require("del");
 const jimp = require("gulp-jimp-wrapper");
@@ -8,26 +11,27 @@ const concat = require("gulp-concat");
 const fs = require("fs");
 
 const choose = {
+  header: 0,
+  footer: 0,
   rand: function (low, high) {
     return low + Math.floor((high - low + 1) * Math.random());
   },
-  lenOfDirElements: function (direct) {
-    const dir = `article/${direct}`;
-    fs.readdir(dir, (err, files) => {
-      return files.length;
-    });
-  },
-  returnState: function (nameSection) {
-    let stateNumber = this.rand(0, this.lenOfDirElements(nameSection));
-    return nameSection + `-${stateNumber}.txt`;
+  init: function () {
+    this.header = this.rand(0, headerFiles - 1);
+    this.footer = this.rand(0, footerFiles - 1);
   },
 };
-console.log(choose.returnState("header"));
+choose.init();
+// const dir = "article/header";
+// let index;
+// fs.readdir(dir, (err, files) => {
+//   index = files.length;
+// }); УЧИ ПРОМИСЫ И АСИНХРОННОСТЬ
 function articles() {
   return src([
-    `article/headers/header.txt`,
+    `article/header/header-${choose.header}.txt`,
     "article/main.txt",
-    `article/footers/footer.txt`,
+    `article/footer/footer-${choose.footer}.txt`,
   ])
     .pipe(concat("article.out.txt"))
     .pipe(dest("article/"));
@@ -49,7 +53,4 @@ function cleandest() {
 exports.articles = articles;
 exports.images = series(cleandest, images, articles);
 exports.cleandest = cleandest;
-exports.default = series(cleandest, images, articles);
-exports.images = series(cleandest, images);
-exports.cleandest = cleandest;
-exports.default = series(cleandest, images);
+exports.default = parallel(cleandest, images, articles);

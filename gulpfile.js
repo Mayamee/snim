@@ -8,7 +8,7 @@ const concat = require("gulp-concat");
 
 function articles() {
   return src(["article/header.txt", "article/main.txt", "article/footer.txt"])
-    .pipe(concat("ready-article.txt"))
+    .pipe(concat("article.out.txt"))
     .pipe(dest("article/"));
 }
 
